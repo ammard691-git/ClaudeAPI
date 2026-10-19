@@ -1,13 +1,15 @@
-name: Run Hello World
+name: Test Expense Tracker
 on:
   push:
     branches: [main]
 jobs:
-  hello:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python hello.py
+      - run: python -m unittest -v
+      - run: python main.py add 12.5 food --note lunch
+      - run: python main.py summary
