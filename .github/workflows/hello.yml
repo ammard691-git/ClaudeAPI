@@ -1,7 +1,9 @@
-name: Test Expense Tracker
+name: Test and Describe
 on:
   push:
     branches: [main]
+permissions:
+  contents: write
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -11,5 +13,17 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m unittest -v
-      - run: python main.py add 12.5 food --note lunch
-      - run: python main.py summary
+      - name: Generate project description
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          pip install anthropic
+          python describe_repo.py
+      - name: Commit description
+        run: |
+          if [ -f PROJECT_DESCRIPTION.md ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add PROJECT_DESCRIPTION.md
+            git diff --cached --quiet || (git commit -m "Update AI project description [skip ci]" && git push)
+          fi
